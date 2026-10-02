@@ -1,0 +1,29 @@
+services:
+  cups:
+    image: avichadda/print-server-docker:test
+    build:
+      context: .
+    container_name: cups
+    hostname: print-server
+    restart: unless-stopped
+    ports:
+      - "631:631"
+      - "8080:8080"
+    environment:
+      PRINTER_NAME: "${PRINTER_NAME:-Canon_G3010}"
+      PRINTER_URI: "${PRINTER_URI:-}"
+      PRINTER_MODEL: "${PRINTER_MODEL:-everywhere}"
+      PRINTER_INFO: "${PRINTER_INFO:-Canon G3010}"
+      PRINTER_LOCATION: "${PRINTER_LOCATION:-Home}"
+      ENABLE_AVAHI: "${ENABLE_AVAHI:-true}"
+    volumes:
+      - manager-data:/data
+      - cups-config:/etc/cups
+      - cups-logs:/var/log/cups
+      - cups-spool:/var/spool/cups
+
+volumes:
+  manager-data:
+  cups-config:
+  cups-logs:
+  cups-spool:

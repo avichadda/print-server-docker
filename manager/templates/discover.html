@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="section">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Automatic setup</p>
+        <h2>Discover printers</h2>
+        <p>Uses Bonjour/DNS-SD and a bounded IPP scan of your private network.</p>
+      </div>
+    </div>
+
+    <form method="post" class="scan-bar">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>
+        Networks to scan
+        <input name="discovery_subnets" value="{{ discovery_subnets }}" placeholder="192.168.1.0/24">
+      </label>
+      <button class="button primary" type="submit">Scan now</button>
+    </form>
+
+    {% for warning in warnings %}
+      <div class="message info">{{ warning }}</div>
+    {% endfor %}
+
+    {% if discoveries %}
+      <div class="discovery-list">
+        {% for printer in discoveries %}
+          <article class="discovery-card">
+            <div class="printer-icon">▣</div>
+            <div class="discovery-info">
+              <h3>{{ printer.name }}</h3>
+              <p>{{ printer.model }}</p>
+              <code>{{ printer.uri }}</code>
+              <span class="pill">{{ printer.source }}</span>
+            </div>
+            {% if printer.uri in configured_uris %}
+              <span class="configured">Configured</span>
+            {% else %}
+              <form method="post" action="{{ url_for('create_printer') }}" class="quick-add">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="uri" value="{{ printer.uri }}">
+                <input type="hidden" name="info" value="{{ printer.name }}">
+                <input type="hidden" name="location" value="">
+                <input name="name" value="{{ printer.name|queue_name }}" aria-label="Queue name" required pattern="[A-Za-z0-9][A-Za-z0-9._-]{0,126}">
+                <label class="checkbox"><input type="checkbox" name="set_default" checked> Default</label>
+                <button class="button primary" type="submit">Add</button>
+              </form>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    {% elif scanned %}
+      <div class="empty-state compact">
+        <div class="empty-icon">⌕</div>
+        <h3>No IPP printers found</h3>
+        <p>Check the subnet or add the printer by its IPP address below.</p>
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="section">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Manual setup</p>
+        <h2>Add by IPP address</h2>
+      </div>
+    </div>
+    <form method="post" action="{{ url_for('create_printer') }}" class="form-grid two-column">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>
+        Queue name
+        <input name="name" placeholder="Office_Printer" required pattern="[A-Za-z0-9][A-Za-z0-9._-]{0,126}">
+      </label>
+      <label>
+        IPP URI
+        <input name="uri" type="url" placeholder="ipp://192.168.1.22/ipp/print" required>
+      </label>
+      <label>
+        Display name
+        <input name="info" placeholder="Office printer">
+      </label>
+      <label>
+        Location
+        <input name="location" placeholder="Office">
+      </label>
+      <label class="checkbox"><input type="checkbox" name="set_default" checked> Make this the default printer</label>
+      <button class="button primary" type="submit">Add printer</button>
+    </form>
+  </section>
+{% endblock %}

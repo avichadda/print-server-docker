@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="setup-card">
+    <div class="setup-hero">
+      <span class="brand-mark large">P</span>
+      <p class="eyebrow">Welcome home</p>
+      <h1>Set up your print server</h1>
+      <p>Create the owner account, tell us where to look, and we will find compatible IPP printers.</p>
+    </div>
+    <form method="post" class="form-grid">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>
+        Administrator username
+        <input name="username" minlength="3" maxlength="64" required autocomplete="username">
+      </label>
+      <label>
+        Password
+        <input type="password" name="password" minlength="10" required autocomplete="new-password">
+        <small>Use at least 10 characters.</small>
+      </label>
+      <label>
+        Confirm password
+        <input type="password" name="password_confirmation" minlength="10" required autocomplete="new-password">
+      </label>
+      <label>
+        Printer discovery network
+        <input name="discovery_subnets" value="{{ default_subnet }}" placeholder="192.168.1.0/24">
+        <small>Optional. Comma-separate private IPv4 networks. DNS-SD discovery is always attempted.</small>
+      </label>
+      <button class="button primary wide" type="submit">Create my print server</button>
+    </form>
+  </section>
+{% endblock %}

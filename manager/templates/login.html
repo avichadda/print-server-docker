@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="login-card">
+    <span class="brand-mark large">P</span>
+    <p class="eyebrow">Print Server</p>
+    <h1>Welcome back</h1>
+    <form method="post" class="form-grid">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>
+        Username
+        <input name="username" required autocomplete="username" autofocus>
+      </label>
+      <label>
+        Password
+        <input type="password" name="password" required autocomplete="current-password">
+      </label>
+      <button class="button primary wide" type="submit">Sign in</button>
+    </form>
+  </section>
+{% endblock %}

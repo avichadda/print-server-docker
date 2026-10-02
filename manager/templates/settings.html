@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="section narrow">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Network</p>
+        <h2>Discovery settings</h2>
+        <p>DNS-SD is always attempted. Private subnet scanning provides a fallback when Docker cannot receive multicast traffic.</p>
+      </div>
+    </div>
+    <form method="post" action="{{ url_for('update_discovery_settings') }}" class="form-grid">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>
+        Private IPv4 networks
+        <input name="discovery_subnets" value="{{ discovery_subnets }}" placeholder="192.168.1.0/24">
+        <small>Up to 1,024 addresses. Separate multiple networks with commas.</small>
+      </label>
+      <button class="button primary" type="submit">Save settings</button>
+    </form>
+  </section>
+{% endblock %}

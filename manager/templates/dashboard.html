@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="status-grid">
+    <article class="metric-card">
+      <span class="metric-label">CUPS service</span>
+      <strong class="metric-value"><span class="status-dot {{ 'online' if cups_online else 'offline' }}"></span>{{ 'Online' if cups_online else 'Offline' }}</strong>
+      <span class="metric-detail">IPP server on port 631</span>
+    </article>
+    <article class="metric-card">
+      <span class="metric-label">Configured printers</span>
+      <strong class="metric-number">{{ printers|length }}</strong>
+      <span class="metric-detail">Shared with your local network</span>
+    </article>
+    <article class="metric-card accent">
+      <span class="metric-label">Management</span>
+      <strong class="metric-value">Protected</strong>
+      <span class="metric-detail">Signed in as {{ session.get('username') }}</span>
+    </article>
+  </section>
+
+  <section class="section">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Devices</p>
+        <h2>Printers</h2>
+      </div>
+      <a class="button secondary" href="{{ url_for('discover', scan='1') }}">Scan network</a>
+    </div>
+
+    {% if printers %}
+      <div class="printer-grid">
+        {% for printer in printers %}
+          <article class="printer-card">
+            <div class="printer-card-heading">
+              <div class="printer-icon">▣</div>
+              <div>
+                <h3>{{ printer.name }}</h3>
+                <p>{{ printer.uri }}</p>
+              </div>
+              {% if printer.default %}<span class="pill">Default</span>{% endif %}
+            </div>
+            <div class="printer-status">
+              <span class="status-dot {{ 'online' if printer.enabled else 'offline' }}"></span>
+              {{ printer.status|capitalize }} · {{ 'Enabled' if printer.enabled else 'Disabled' }}
+            </div>
+            <div class="card-actions">
+              <form method="post" action="{{ url_for('test_printer', name=printer.name) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="button secondary" type="submit">Print test page</button>
+              </form>
+              {% if not printer.default %}
+                <form method="post" action="{{ url_for('make_default', name=printer.name) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="button ghost" type="submit">Make default</button>
+                </form>
+              {% endif %}
+              <form method="post" action="{{ url_for('delete_printer', name=printer.name) }}" onsubmit="return confirm('Remove {{ printer.name }}?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="button danger" type="submit">Remove</button>
+              </form>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">⌕</div>
+        <h3>No printers configured</h3>
+        <p>Let the server discover driverless IPP printers on your network.</p>
+        <a class="button primary" href="{{ url_for('discover', scan='1') }}">Find printers</a>
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}
